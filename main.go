@@ -18,20 +18,16 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	tb "gopkg.in/tucnak/telebot.v2"
+	"io/ioutil"
+	"log"
 	"strconv"
 	"time"
 )
 
-var (
-	bot, _ = tb.NewBot(tb.Settings{
-		Token:  "YOUR TOKEN HERE",
-		Poller: &tb.LongPoller{Timeout: 25 * time.Minute},
-	})
-)
-
-func onUserJoined() {
+func onUserJoined(bot *tb.Bot) {
 	bot.Handle(tb.OnUserJoined, func(m *tb.Message) {
 		convID := strconv.Itoa(m.Sender.ID)
 		bot.Delete(m)
@@ -88,7 +84,22 @@ func onUserJoined() {
 }
 
 func main() {
-	onUserJoined()
+	var jsonFile, err = ioutil.ReadFile("config.json")
+	if err != nil {
+		log.Fatal(err)
+	}
+	var config map[string]interface{}
+
+	json.Unmarshal(jsonFile, &config)
+
+	bot, err := tb.NewBot(tb.Settings{
+		Token:  config["token"].(string),
+		Poller: &tb.LongPoller{Timeout: 25 * time.Minute},
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+	onUserJoined(bot)
 	bot.Start()
 
 }
