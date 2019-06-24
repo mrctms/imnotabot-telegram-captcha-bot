@@ -27,6 +27,12 @@ import (
 	"time"
 )
 
+func start(bot *tb.Bot) {
+	bot.Handle("/start", func(m *tb.Message) {
+		bot.Send(m.Sender, "With this bot when a new user join your group it will have to solve the captcha otherwise will be kicked.")
+	})
+}
+
 func onUserJoined(bot *tb.Bot) {
 	bot.Handle(tb.OnUserJoined, func(m *tb.Message) {
 		convID := strconv.Itoa(m.Sender.ID)
@@ -99,6 +105,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	start(bot)
 	onUserJoined(bot)
 	bot.Start()
 
