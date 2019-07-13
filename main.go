@@ -59,12 +59,13 @@ func onUserJoined(bot *tb.Bot) {
 		}
 		text := fmt.Sprintf(`<a href="tg://user?id=%v">%v %v</a>`+" <b>if you are not a bot, press the button below, otherwise you will be kicked</b>", m.Sender.ID, m.Sender.FirstName, m.Sender.LastName)
 		bot.Restrict(m.Chat, restrictUser)
-		msg, _ := bot.Send(m.Chat, text, &tb.ReplyMarkup{
+		msg, err := bot.Send(m.Chat, text, &tb.ReplyMarkup{
 			InlineKeyboard: inlineKeys,
 		}, tb.ModeHTML)
-
+		if err != nil {
+			log.Println(err)
+		}
 		bot.Handle(&inlineBtn, func(c *tb.Callback) {
-
 			convData, _ := strconv.Atoi(inlineBtn.Data)
 			if c.Sender.ID == convData {
 				bot.Promote(m.Chat, promoteUser)
